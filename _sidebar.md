@@ -12,6 +12,8 @@
   - [谈谈你对ThreadLocal的理解](./Java/谈谈你对ThreadLocal的理解/README.md)
   - [谈谈你对AQS的理解](./Java/谈谈你对AQS的理解/README.md)
   - [ArrayList扩容机制](./Java/ArrayList扩容机制/README.md)
+-**Linux**
+  - [虚拟化技术解决服务器内存小问题](./Linux/虚拟化技术解决服务器内存小问题/README.md)
 -**Redis**
   - [Redis Bitmaps（位图）](./Redis/Bitmaps.md)
   - [Redis GEO](./Redis/GEO.md)
