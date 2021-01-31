@@ -1,0 +1,256 @@
+# Redis 哨兵
+
+**1、Sentinel 哨兵**
+
+Sentinel（哨兵）是Redis的高可用性解决方案：由一个或多个Sentinel实例组成的Sentinel系统可以监视任意多个主服务器，以及这些主服务器属下的所有从服务器，并在被监视的主服务器进入下线状态时，自动将下线主服务器属下的某个从服务器升级为新的主服务器。
+
+例如：
+
+![img](https://img-blog.csdn.net/20171107114610326?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+
+
+　在Server1掉线后：
+
+![img](https://img-blog.csdn.net/20171107114625431?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+
+
+　　　　升级Server2 为新的主服务器：
+
+![img](https://img-blog.csdn.net/20171107114643539?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+　　
+
+**2、Redis 主从分离**
+
+------
+
+在讲解Sentinel 哨兵集群之前，我们先来搭建一个简单的主从分离（读写分离）。
+
+首先，我们默认大家都已经安装了redis，然后我们将 **redis.conf** 拷贝多份，并且创建多个目录，用于区分多个redis 服务：
+
+![img](https://img-blog.csdn.net/20171107142523561?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+
+
+这里面，每个目录中都有自己的redis.conf配置文件，接下来，我们先设置主服务器的配置文件。
+
+### 一、配置Master
+
+1、修改端口
+
+```
+port 6379
+```
+
+redis 的默认端口是6379
+
+2、修改pidfile
+
+```bash
+pidfile /var/run/redis_6379.pid
+```
+
+pidfile 是我们启动redis 的时候，linux 为我们分配的一个pid 进程号，如果这里不作修改，会影响后面redis服务的启动
+
+3、启动 redis
+
+![img](https://img-blog.csdn.net/20171107142603951?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+
+
+启动redis，我们可以看到，redis已经占领了6379端口
+
+进入客户端
+
+![img](https://img-blog.csdn.net/20171107142625100?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+
+
+有密码的话需要>auth password 输入密码
+
+![img](https://img-blog.csdn.net/20171107142648255?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+…
+
+![img](https://img-blog.csdn.net/20171107142705712?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+
+
+我们可以看到，redis现在的角色是一个master启动的服务。并且默认没有连接从库。
+
+### 二、配置Slave
+
+和上面配置 master一样，我们需要修改端口号和pid 文件，在修改完之后，我们有两种方法配置从服务
+
+**1、在配置文件中配置从服务**
+
+```bash
+\# slaveof<masterip> <masterport>
+
+slaveof 10.129.28.1496379
+```
+
+我们可以在配置文件中直接修改 **slaveof** 属性，我们直接配置主服务器的ip 地址，和端口号，如果这里主服务器有配置密码
+
+可以通过配置**masterauth** 来设置链接密码
+
+```bash
+\# masterauth<master-password>
+
+Masterauthredis007 
+```
+
+ 启动redis 服务
+
+![img](https://img-blog.csdn.net/20171107142726799?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+
+
+![img](https://img-blog.csdn.net/20171107142816334?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+我们可以看到，现在有两个现在在运行，我们进入7000的客户端，看一下他的状态info，
+
+![img](https://img-blog.csdn.net/20171107142835016?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+![img](https://img-blog.csdn.net/20171107142902044?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+我们可以看到，现在的redis 是一个从服务的角色，连接着6379的服务。
+
+**2、在服务启动后配置**
+
+启动7001服务
+
+进入客户端，查看当前服务器的状态并修改：
+
+```bash
+10.192.28.149:7001> slaveof 127.0.0.1 6379
+```
+
+**3、总结**
+
+我们先看一下目前master 的状态：
+
+![img](https://img-blog.csdn.net/20171107142925192?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+
+
+我们可以可以看到，两个从服务已经在连着主服务器，上面两种配置的区别在于，当salve 断线重连之后，
+
+如果我们是修改类配置文件，重连之后会自己链接上去master，并且同步master 上面的数据，
+
+如果我们是手动连接上去的主服务器，重连之后，从服务器会读取自己本地的 rdb 回复数据，而不会去自动链接主服务
+
+我们如果需要设置读写分离，只需要在主服务器中设置：
+
+```bash
+slave-read-only yes
+```
+
+## 3、Sentinel 哨兵
+
+### 1、配置端口
+
+在sentinel.conf 配置文件中， 我们可以找到port 属性，这里是用来设置sentinel 的端口，一般情况下，至少会需要三个哨兵对redis 进行监控，我们可以通过修改端口启动多个sentinel 服务。
+
+```
+port 26379
+```
+
+### 2、配置主服务器的ip 和端口
+
+我们把监听的端口修改成6379，并且加上权值为2，这里的权值，是用来计算我们需要将哪一台服务器升级升主服务器，如果redis实例有密码的话需要加上auth-pass项，否则连接会报失败。
+
+```
+sentinel monitor mymaster 10.129.28.149 6379 2
+sentinel auth-pass mymaster redis007
+```
+
+### 3、启动Sentinel
+
+![img](https://img-blog.csdn.net/20171107142953380?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+当我们把其中一个从服务器slave-7001关闭之后，我们可以看到日志显示+sdownslave;
+
+我们再把slave-7001接回去，日志显示+rebootslave 和 –sdown slave。
+
+![img](https://img-blog.csdn.net/20171107143009670?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+### 4、关闭Master 
+
+我们手动关闭Master 之后，sentinel在监听master 确实是断线了之后，将会开始计算权值，然后重新分配主服务器
+
+![img](https://img-blog.csdn.net/20171107143050873?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+我们可以看到，6379主服务器断了之后，sentinel 帮我们选了7001作为新的主服务器
+
+我们进到7001的客户端，查看他的状态：
+
+![img](https://img-blog.csdn.net/20171107143113275?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+我们再进入sentinel的客户端看下：
+
+![img](https://img-blog.csdn.net/20171107143126950?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+此时7001已经由slave荣升为master了。
+
+### 5、重连Master
+
+大家可能会好奇，如果master 重连之后，会不会抢回属于他的位置，答案是否定的，就比如你被一个小弟抢了你老大的位置，他肯给回你这个位置吗。因此当master 回来之后，他也只能当个小弟　
+
+我们看下重新连接以后的6379状态：
+
+![img](https://img-blog.csdn.net/20171107143159115?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+再看下sentinel中日志：
+
+![img](https://img-blog.csdn.net/20171107143219044?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd294aW5nd29zdTAxMDA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+
+## 4、Sentinel 总结
+
+------
+
+### 一、Sentinel的作用：
+
+A、Master 状态监测
+
+B、如果Master 异常，则会进行Master-slave 转换，将其中一个Slave作为Master，将之前的Master作为Slave 
+
+C、Master-Slave切换后，master_redis.conf、slave_redis.conf和sentinel.conf的内容都会发生改变，即master_redis.conf中会多一行slaveof的配置，sentinel.conf的监控目标会随之调换 
+
+### 二、Sentinel的工作方式:
+
+1)：每个Sentinel以每秒钟一次的频率向它所知的Master，Slave以及其他Sentinel实例发送一个PING命令 
+2)：如果一个实例（instance）距离最后一次有效回复 PING 命令的时间超过 down-after-milliseconds 选项所指定的值，则这个实例会被 Sentinel 标记为主观下线。 
+3)：如果一个Master被标记为主观下线，则正在监视这个Master的所有 Sentinel 要以每秒一次的频率确认Master的确进入了主观下线状态。 
+4)：当有足够数量的 Sentinel（大于等于配置文件指定的值）在指定的时间范围内确认Master的确进入了主观下线状态， 则Master会被标记为客观下线 
+5)：在一般情况下， 每个 Sentinel 会以每10 秒一次的频率向它已知的所有Master，Slave发送 INFO 命令 
+6)：当Master被 Sentinel 标记为客观下线时，Sentinel 向下线的 Master 的所有 Slave 发送 INFO 命令的频率会从 10 秒一次改为每秒一次 
+7)：若没有足够数量的 Sentinel 同意Master 已经下线， Master 的客观下线状态就会被移除。 
+若 Master 重新向 Sentinel 的 PING 命令返回有效回复， Master 的主观下线状态就会被移除。
+
+**Sentinel后台守护进程启动及日志配置**
+
+正常启动redis的sentinel时，进程会直接在前台跑，一退出sentinel进程就关了：
+
+第一种方法：
+使用nohub来启动sentinel，使得进程在后台启动以及在指定目录记录日志信息：
+
+```sh
+nohup /letv/redis-4.0.1/src/redis-sentinel /letv/redis-deploy/redis-sentinel/sentinel-26379.conf  >> /letv/redis-deploy/redis-sentinel/sentinel-26379-log.log 2>&1 &
+```
+
+第二种方法：
+在sentinel.conf中添加以下内容：
+
+```sh
+[root@redis_01 redis]# vim sentinel-26379.conf 
+daemonize yes
+logfile "letv/redis-deploy/redis-sentinel/sentinel-26379-log.log"
+```
+
+主从同步原理：
+
+在Slave启动并连接到Master之后，它将主动发送一个SYNC命令。此后Master将启动后台存盘进程，同时收集所有接收到的用于修改数据集的命令，在后台进程执行完毕后，Master将传送整个数据库文件到Slave，以完成一次完全同步。而Slave服务器在接收到数据库文件数据之后将其存盘并加载到内存中。此后，Master继续将所有已经收集到的修改命令，和新的修改命令依次传送给Slaves，Slave将在本次执行这些数据修改命令，从而达到最终的数据同步。
+如果Master和Slave之间的链接出现断连现象，Slave可以自动重连Master，但是在连接成功之后，一次完全同步将被自动执行。
