@@ -1,0 +1,22 @@
+- [**学习笔记**](README.md)
+
+
+- **Java**
+  - [Java注解和反射](./Java/Java注解和反射/README.md)
+  - [泛型的类型擦除](./Java/泛型的类型擦除/README.md)
+  - [Java使用Redis删除指定前缀Key](./Java/Java使用Redis删除指定前缀Key/README.md)
+  - [前端的一些跨域问题](./Java/前端的一些跨域问题/README.md)
+  - [使用Ip2region替代淘宝IP接口](./Java/使用Ip2region替代淘宝IP接口/README.md)
+  - [JVM类加载机制](./Java/JVM类加载机制/README.md)
+  - [VisualVM安装VisualGC插件](./Java/VisualVM安装VisualGC插件/README.md)
+  - [谈谈你对ThreadLocal的理解](./Java/谈谈你对ThreadLocal的理解/README.md)
+  - [谈谈你对AQS的理解](./Java/谈谈你对AQS的理解/README.md)
+  - [ArrayList扩容机制](./Java/ArrayList扩容机制/README.md)
+-**Redis**
+  - [Redis Bitmaps（位图）](./Redis/Bitmaps.md)
+  - [Redis GEO](./Redis/GEO.md)
+  - [Redis HyperLogLog](./Redis/HyperLogLog.md)
+  - [Redis 持久化](./Redis/持久化.md)
+  - [Redis 配置参数](./Redis/配置参数.md)
+  - [Redis 事务](./Redis/事务.md)
+  - [Redis 哨兵](./Redis/哨兵.md)
