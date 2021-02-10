@@ -22,7 +22,7 @@
   - 处理器 cpu 
   - 内存 mem
   - 空闲率 id = idle
-  - 系统平均负载率 load average  (a+b+c)/3 *100% 60  重 80 即将宕机
+  - 系统平均负载率 load average  (a+b+c)/3 *100%    达到 60 % 重度 80 %即将宕机
 
 - uptime 
 
@@ -88,4 +88,5 @@ procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
 
 ## 权限
 
-chomd 
+chomd  +x  xxx
+
