@@ -14,6 +14,7 @@
   - [ArrayList扩容机制](./Java/ArrayList扩容机制/README.md)
 - **Linux**
   - [虚拟化技术解决服务器内存小问题](./Linux/虚拟化技术解决服务器内存小问题/README.md)
+  - [Linux之5个常用的命令](./随笔记/Linux之5个常用的命令.md)
 - **Redis**
   - [Redis Bitmaps（位图）](./Redis/Bitmaps.md)
   - [Redis GEO](./Redis/GEO.md)
@@ -26,3 +27,4 @@
   - [接口幂等性](./随笔记/接口幂等性.md)
   - [Swagger增强方案](./随笔记/Swagger增强方案.md)
   - [搭建个人公众号](./随笔记/搭建个人公众号.md)
+  - [Linux之5个常用的命令](./随笔记/Linux之5个常用的命令.md)
