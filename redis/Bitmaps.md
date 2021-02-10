@@ -23,7 +23,7 @@ OK
 (integer) 1
 ```
 
-![图片描述](https://segmentfault.com/img/bV7Vbe?w=1304&h=669)
+![图片描述](https://gitee.com/kongyin/picture_bed/raw/master/wx_picture/bV7Vbe)
 
 ### 2. setbit key offset value
 
