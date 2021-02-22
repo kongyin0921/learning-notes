@@ -60,7 +60,7 @@ ElasticJob 中任务分片项的概念，使得任务可以在分布式的环境
 
 举例说明，如果作业分为 4 片，用两台服务器执行，则每个服务器分到 2 片，分别负责作业的 50% 的负载，如下图所示
 
-![分片作业](https://shardingsphere.apache.org/elasticjob/current/img/elastic/sharding.png)
+![分片作业](https://gitee.com/kongyin/picture_bed/raw/master/wx_picture/shardinga.png)
 
 *分片项*
 
@@ -86,7 +86,7 @@ ElasticJob 提供最灵活的方式，最大限度的提高执行作业的吞吐
 
 当作业服务器在运行中宕机时，注册中心同样会通过临时节点感知，并将在下次运行时将分片转移至仍存活的服务器，以达到作业高可用的效果。 本次由于服务器宕机而未执行完的作业，则可以通过失效转移的方式继续执行。如下图所示。
 
-![作业高可用](https://shardingsphere.apache.org/elasticjob/current/img/elastic/ha.png)
+![作业高可用](https://gitee.com/kongyin/picture_bed/raw/master/wx_picture/ha.png)
 
 将分片总数设置为 1，并使用多于 1 台的服务器执行作业，作业将会以 1 主 n 从的方式执行。 一旦执行作业的服务器宕机，等待执行的服务器将会在下次作业启动时替补执行。开启失效转移功能效果更好，可以保证在本次作业在执行时宕机的情况下，备机立即启动替补执行。
 ## ElasticJob-Lite 实现原理
@@ -150,11 +150,11 @@ leader节点是内部使用的节点，如果对作业框架原理不感兴趣�
 
 - 作业启动
 
-![作业启动](https://shardingsphere.apache.org/elasticjob/current/img/principles/job_start.jpg)
+![作业启动](https://gitee.com/kongyin/picture_bed/raw/master/wx_picture/job_start.jpg)
 
 - 作业执行
 
-![作业执行](https://shardingsphere.apache.org/elasticjob/current/img/principles/job_exec.jpg)
+![作业执行](https://gitee.com/kongyin/picture_bed/raw/master/wx_picture/job_exec.jpg)
 
 
 
@@ -168,17 +168,17 @@ ElasticJob 不会在本次执行过程中进行重新分片，而是等待下次
 
 失效转移是当前执行作业的临时补偿执行机制，在下次作业运行时，会通过重分片对当前作业分配进行调整。 举例说明，若作业以每小时为间隔执行，每次执行耗时 30 分钟。如下如图所示。
 
-[![定时作业](https://shardingsphere.apache.org/elasticjob/current/img/failover/job.png)](https://shardingsphere.apache.org/elasticjob/current/img/failover/job.png)
+![定时作业](https://gitee.com/kongyin/picture_bed/raw/master/wx_picture/job.png)
 
 图中表示作业分别于 12:00，13:00 和 14:00 执行。图中显示的当前时间点为 13:00 的作业执行中。
 
 如果作业的其中一个分片服务器在 13:10 的时候宕机，那么剩余的 20 分钟应该处理的业务未得到执行，并且需要在 14:00 时才能再次开始执行下一次作业。 也就是说，在不开启失效转移的情况下，位于该分片的作业有 50 分钟空档期。如下如图所示。
 
-[![作业宕机](https://shardingsphere.apache.org/elasticjob/current/img/failover/job-crash.png)](https://shardingsphere.apache.org/elasticjob/current/img/failover/job-crash.png)
+![作业宕机](https://gitee.com/kongyin/picture_bed/raw/master/wx_picture/job-crash.png)
 
 在开启失效转移功能之后，ElasticJob 的其他服务器能够在感知到宕机的作业服务器之后，补偿执行该分片作业。如下图所示。
 
-[![补偿执行](https://shardingsphere.apache.org/elasticjob/current/img/failover/job-failover.png)](https://shardingsphere.apache.org/elasticjob/current/img/failover/job-failover.png)
+![补偿执行](https://gitee.com/kongyin/picture_bed/raw/master/wx_picture/job-failover.png)
 
 在资源充足的情况下，作业仍然能够在 13:30 完成执行。
 
@@ -210,17 +210,17 @@ ElasticJob 不允许作业在同一时间内叠加执行。 当作业的执行�
 
 错过任务重执行功能可以使逾期未执行的作业在之前作业执行完成之后立即执行。 举例说明，若作业以每小时为间隔执行，每次执行耗时 30 分钟。如下如图所示。
 
-[![定时作业](https://shardingsphere.apache.org/elasticjob/current/img/misfire/job.png)](https://shardingsphere.apache.org/elasticjob/current/img/misfire/job.png)
+![定时作业](https://gitee.com/kongyin/picture_bed/raw/master/wx_picture/job1.png)
 
 图中表示作业分别于 12:00，13:00 和 14:00 执行。图中显示的当前时间点为 13:00 的作业执行中。
 
 如果 12：00 开始执行的作业在 13:10 才执行完毕，那么本该由 13:00 触发的作业则错过了触发时间，需要等待至 14:00 的下次作业触发。 如下如图所示。
 
-[![错过作业](https://shardingsphere.apache.org/elasticjob/current/img/misfire/job-missed.png)](https://shardingsphere.apache.org/elasticjob/current/img/misfire/job-missed.png)
+![错过作业](https://gitee.com/kongyin/picture_bed/raw/master/wx_picture/job-missed.png)
 
 在开启错过任务重执行功能之后，ElasticJob 将会在上次作业执行完毕后，立刻触发执行错过的作业。如下图所示。
 
-[![错过作业重执行](https://shardingsphere.apache.org/elasticjob/current/img/misfire/job-misfire.png)](https://shardingsphere.apache.org/elasticjob/current/img/misfire/job-misfire.png)
+![错过作业重执行](https://gitee.com/kongyin/picture_bed/raw/master/wx_picture/job-misfire.png)
 
 在 13：00 和 14:00 之间错过的作业将会重新执行。
 
