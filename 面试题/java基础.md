@@ -562,3 +562,500 @@ java.io 包下所有的字节输入流都继承自 InputStream，并且实现了
 - FileInputStream：文件输入流，通常用于对文件进行读取操作。
 - File：对指定目录的文件进行操作。
 - ObjectInputStream：对象输入流，用来提供对“基本数据或对象”的持久存储。通俗点讲，就是能直接传输Java对象（序列化、反序列化用）。
+
+**字节输出流 OutputStream**
+
+与字节输入流类似，java.io 包下所有字节输出流大多是从抽象类 OutputStream 继承而来的。OutputStream 提供的主要数据操作方法：
+
+- void write(int i)：将字节 i 写入到数据流中，它只输出所读入参数的最低 8位，该方法是抽象方法，需要在其输出流子类中加以实现，然后才能使用。
+- void write(byte[] b)：将数组 b 中的全部 b.length 个字节写入数据流。
+- void write(byte[] b, int off, int len)：将数组 b 中从下标 off 开始的 len个字节写入数据流。元素 b[off] 是此操作写入的第一个字节，b[off + len - 1] 是此操作写入的最后一个字节。
+- void close()：关闭输出流。
+- void flush()：刷新此输出流并强制写出所有缓冲的输出字节。
+
+为了加快数据传输速度，提高数据输出效率，又是输出数据流会在提交数据之前把所要输出的数据先暂时保存在内存缓冲区中，然后成批进行输出，每次传输过程都以某特定数据长度为单位进行传输，在这种方式下，数据的末尾一般都会有一部分数据由于数量不够一个批次，而存留在缓冲区里，调用 flush() 方法可以将这部分数据强制提交。
+
+**字符输入流 Reader**
+
+子类
+
+- CharReader和SringReader是两种基本的介质流，它们分别将Char数组、String中读取数据。PipedReader
+  是从与其它线程共用的管道中读取数据。
+- BufferedReader很明显是一个装饰器，它和其他子类负责装饰其他Reader对象。
+- FilterReader是所有自定义具体装饰流的父类，其子类PushBackReader对Reader对象进行装饰，会增加一个行号。
+- InputStreamReader是其中最重要的一个，用来在字节输入流和字符输入流之间作为中介，可以将字节输入流转换为字符输入流。FileReader可以说是一个达到此功能、常用的工具类，在其源代码中明显使用了将FileInputStream 转变为Reader 的方法。
+
+### 16.BIO、NIO、AIO 有什么区别？
+
+- BIO 就是传统的 java.io包，它是基于流模型实现的，交互的方式是同步、阻塞方式，也就是说在读入输入流或者输出流时，在读写动作完成之前，线程会一直阻塞在那里，它们之间的调用时可靠的线性顺序。它的优点就是代码比较简单、直观；缺点就是 IO 的效率和扩展性很低，容易成为应用性能瓶颈。
+- NIO 是 Java 1.4 引入的 java.nio 包，提供了 Channel、Selector、Buffer等新的抽象，可以构建多路复用的、同步非阻塞 IO 程序，同时提供了更接近操作系统底层高性能的数据操作方式。
+
+- AIO 是 Java 1.7 之后引入的包，是 NIO 的升级版本，提供了异步非堵塞的 IO 操作方式，所以人们叫它AIO（Asynchronous IO），异步 IO是基于事件和回调机制实现的，也就是应用操作之后会直接返回，不会堵塞在那里，当后台处理完成，操作系统会通知相应的线程进行后续的操作。
+
+**1. 同步与异步**
+
+**同步与异步**的概念，关注的是 **消息通信机制**
+
+**同步**是指发出一个请求，在没有得到结果之前该请求就不返回结果，请求返回时，也就得到结果了。
+比如洗衣服，把衣服放在洗衣机里，没有洗好之前我们一直看着， 直到洗好了才拿出来晾晒。
+
+**异步**是指发出一个请求后，立刻得到了回应，但没有返回结果。这时我们可以再处理别的事情(发送其他请求)，所以这种方式需要我们通过状态主动查看是否有了结果, 或者可以设置一个回调来通知调用者。
+
+比如洗衣服时，把衣服放到洗衣机里，我们就可以去做别的事情，过会儿来看看有没有洗好(通过状态查询)；或者我们设置洗衣机洗完后响铃来通知我们洗好了(回调通知)
+
+**2. 阻塞与非阻塞**
+
+**阻塞与非阻塞**很容易和**同步与异步**混淆，但两者关注点是不一样的。 **阻塞与非阻塞**关注的是 **程序在等待调用结果时的状态**
+
+- **阻塞**是指请求结果返回之前，当前线程会被挂起(被阻塞)，这时线程什么也做不了
+- **非阻塞**是指请求结果返回之前，当前线程没有被阻塞，仍然可以做其他事情。
+
+**阻塞**有个明显的特征就是线程通常是处于**BLOCKED**状态(BIO中的**read()操作时，线程阻塞是JVM配合OS完成的，此时Java获取到线程的状态仍是RUNNABLE**但它确实已经被阻塞了)
+
+如果要拿**同步**来做比较的话，同步通信方式中的线程在发送请求之后等待结果这个过程中应该处于**RUNNABLE**状态，同步必须一步一步来完成，就像是代码必须执行完一行才能执行下一行, 所以必须等待这个请求返回之后才可进行下一个请求, 即使等待结果的时间长，也是在执行这个请求的过程中。而**异步**则不用等上一条执行完, 可以先执行别的代码，等请求有了结果再来获取结果。
+
+**3. IO模型**
+
+Java中的IO操作是JVM配合操作系统来完成的。对于一个IO的读操作，数据会先被拷贝到操作系统内核的缓冲区中，然后从操作系统内核的缓冲区拷贝到应用程序的地址空间。所以整个过程可分为两个阶段：
+
+1. 等待I/O数据准备好，这取决于IO目标返回数据的速度, 如网络IO时看网速和数据本身的大小。
+2. 数据从内核缓冲区拷贝到进程内。
+
+根据这两个阶段，产生了常见的几种不同的IO模型：**BIO**， **NIO**， **IO多路复用**和**AIO**。
+
+**3.1 BIO**
+**BIO**即**Blocking I/O**(阻塞 I/O)，BIO整个过程如下图：
+![在这里插入图片描述](E:\.学习\learning-notes\面试题\20200727100928591.png)
+
+程序发送请求给内核，然后由内核去进行通信，在内核准备好数据之前这个线程是被挂起的，所以在两个阶段程序都处于挂起状态。
+
+- BIO的特点就是在IO执行的两个阶段都被block了
+
+**3.2 NIO**
+**NIO**即**Non-Blocking I/O**(非阻塞 I/O)， NIO整个过程如下图：
+![在这里插入图片描述](E:\.学习\learning-notes\面试题\20200727101055587.png)
+
+与BIO的明显区别是，发起第一次请求后，线程并没有被阻塞，它反复检查数据是否准备好，把原来大块不能用的阻塞时间分成了许多“小阻塞”(检查)，所以进程不断有机会被执行。这个检查有没有准备好数据的过程有点类似于“轮询”。
+
+- NIO的特点就是程序需要不断的主动询问内核数据是否准备好。第一个阶段非阻塞，第二个阶段阻塞
+
+**3.3 IO多路复用**
+
+IO多路复用(**I/O Multiplexing**)有**select**，**poll**，**epoll**等不同方式，它的优点在于单个线程可以同时处理多个网络IO。
+
+**NIO**中轮询操作是用户线程进行的，如果把这个任务交给其他线程，则用户线程就不用这么费劲的查询状态了。**IO多路复用**调用系统级别的**select**或**poll**模型，由系统进行监控IO状态。select轮询可以监控许多socket的IO请求，当有一个socket的数据准备好时就可以返回。
+
+- select： 注册事件由数组管理, 数组是有长度的, 32位机上限1024， 64位机上限2048。轮询查找时需要遍历数组。
+- poll：把select的数组采用链表实现，因此没了最大数量的限制
+- epoll方式：基于事件回调机制，回调时直接通知进程，无须使用某种方式来查看状态。
+
+多路复用IO过程图：
+![在这里插入图片描述](E:\.学习\learning-notes\面试题\2020072710135976.png)
+
+用户线程有一段时间是阻塞的，从上图来看，与**NIO**很像，但与NIO不一样的是，select不是等到所有数据准备好才返回，而是只要有一个准备好就返回，它的优势在于可以同时处理多个连接。若连接不是很多的话，它的效率不一定高，可能还会更差。
+
+**Java 1.4**开始支持**NIO(New IO)**，就是采用了这种方式，在套接字上提供**selector**选择机制，当发起**select()** 时会阻塞等待至少一个事件返回。
+
+- 多路复用IO的特点是用户进程能同时等待多个IO请求，系统来监控IO状态，其中的任意一个进入读就绪状态，select函数就可以返回。
+
+**3.4 AIO**
+
+**AIO**即**Asynchronous I/O**(异步 I/O)，这是**Java 1.7**引入的**NIO 2.0**中用到的。整个过程中，用户线程发起一个系统调用之后无须等待，可以处理别的事情。由操作系统等待接收内容，接收后把数据拷贝到用户进程中，最后通知用户程序已经可以使用数据了，两个阶段都是非阻塞的。AIO整个过程如下图：
+![在这里插入图片描述](E:\.学习\learning-notes\面试题\20200727101800945.png)
+
+**AIO**属于异步模型， 用户线程可以同时处理别的事情，我们怎么进一步加工处理结果呢? Java在这个模型中提供了两种方法：
+
+- 一种是基于”回调”，我们可以实现**CompletionHandler**接口，在调用时把回调函数传递给对应的API即可
+- 另一种是返回一个**Future**。处理完别的事情，可以通过**isDone()** 可查看是否已经准备好数据，通过get()方法等待返回数据。
+
+**3.5 小结**
+
+上面这几种模式，**BIO**整个过程都等待返回，**NIO**和**IO多路复用**在第二个阶段等待返回，因此从整个过程来看，这三个模式都属于同步方式。 **AIO**在整个过程中没有等待返回，属于异步方式。
+
+### 17.Files的常用方法都有哪些？
+
+- isExecutable：文件是否可以执行
+- isSameFile：是否同一个文件或目录
+- isReadable：是否可读
+- isDirectory：是否为目录
+- isHidden：是否隐藏
+- isWritable：是否可写
+- isRegularFile：是否为普通文件
+- getPosixFilePermissions：获取POSIX文件权限，windows系统调用此方法会报错
+- setPosixFilePermissions：设置POSIX文件权限
+- getOwner：获取文件所属人
+- setOwner：设置文件所属人
+- createFile：创建文件
+- newInputStream：打开新的输入流
+- newOutputStream：打开新的输出流
+- createDirectory：创建目录，当父目录不存在会报错
+- createDirectories：创建目录，当父目录不存在会自动创建
+- createTempFile：创建临时文件
+- newBufferedReader：打开或创建一个带缓存的字符输入流
+- probeContentType：探测文件的内容类型
+- list：目录中的文件、文件夹列表
+- find：查找文件
+- size：文件字节数
+- copy：文件复制
+- lines：读出文件中的所有行
+- move：移动文件位置
+- exists：文件是否存在
+- walk：遍历所有目录和文件
+- write：向一个文件写入字节
+- delete：删除文件
+- getFileStore：返回文件存储区
+- newByteChannel：打开或创建文件，返回一个字节通道来访问文件
+- readAllLines：从一个文件读取所有行字符串
+- setAttribute：设置文件属性的值
+- getAttribute：获取文件属性的值
+- newBufferedWriter：打开或创建一个带缓存的字符输出流
+- readAllBytes：从一个文件中读取所有字节
+- createTempDirectory：在特殊的目录中创建临时目录
+- deleteIfExists：如果文件存在删除文件
+- notExists：判断文件不存在
+- getLastModifiedTime：获取文件最后修改时间属性
+- setLastModifiedTime：更新文件最后修改时间属性
+- newDirectoryStream：打开目录，返回可迭代该目录下的目录流
+- walkFileTree：遍历文件树，可用来递归删除文件等操作
+
+**详细介绍**
+
+java NIO Files类(java.nio.file.Files) 提供了操作文件的相关方法。本篇文章将会覆盖大多数常用的方法。
+
+Java7中文件IO发生了很大的变化，专门引入了很多新的类：
+
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+
+…等等，来取代原来的基于java.io.File的文件IO操作方式.
+
+**1. Path就是取代File的**
+
+A Path represents a path that is hierarchical and composed of a sequence of directory and file name elements separated by a special separator or delimiter.
+
+**Path用于来表示文件路径和文件**。可以有多种方法来构造一个Path对象来表示一个文件路径，或者一个文件：
+
+1）首先是final类Paths的两个static方法，如何从一个路径字符串来构造Path对象：
+
+```java
+Path path = Paths.get("C:/", "Xmp");
+Path path2 = Paths.get("C:/Xmp");
+URI u = URI.create("file:///C:/Xmp/dd");        
+Path p = Paths.get(u);
+```
+
+2）FileSystems构造：
+
+```java
+Path path3 = FileSystems.getDefault().getPath("C:/", "access.log");
+```
+
+3）File和Path之间的转换，File和URI之间的转换：
+
+```java
+File file = new File("C:/my.ini");
+Path p1 = file.toPath();
+p1.toFile();
+file.toURI();
+```
+
+4）创建一个文件：
+
+```java
+Path target2 = Paths.get("C:\\mystuff.txt");
+//      Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rw-rw-rw-");
+//      FileAttribute<Set<PosixFilePermission>> attrs = PosixFilePermissions.asFileAttribute(perms);
+        try {
+            if(!Files.exists(target2))
+                Files.createFile(target2);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+```
+
+windows下不支持PosixFilePermission来指定rwx权限。
+
+5）Files.newBufferedReader读取文件：
+
+```java
+try {
+//            Charset.forName("GBK")
+            BufferedReader reader = Files.newBufferedReader(Paths.get("C:\\my.ini"), StandardCharsets.UTF_8);
+            String str = null;
+            while((str = reader.readLine()) != null){
+                System.out.println(str);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+```
+
+可以看到使用 Files.newBufferedReader 远比原来的FileInputStream，然后BufferedReader包装，等操作简单的多了。
+
+这里如果指定的字符编码不对，可能会抛出异常 MalformedInputException ，或者读取到了乱码：
+
+```java
+java.nio.charset.MalformedInputException: Input length = 1
+    at java.nio.charset.CoderResult.throwException(CoderResult.java:281)
+    at sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:339)
+    at sun.nio.cs.StreamDecoder.read(StreamDecoder.java:178)
+    at java.io.InputStreamReader.read(InputStreamReader.java:184)
+    at java.io.BufferedReader.fill(BufferedReader.java:161)
+    at java.io.BufferedReader.readLine(BufferedReader.java:324)
+    at java.io.BufferedReader.readLine(BufferedReader.java:389)
+    at com.coin.Test.main(Test.java:79)
+```
+
+6）文件写操作：
+
+```java
+try {
+            BufferedWriter writer = Files.newBufferedWriter(Paths.get("C:\\my2.ini"), StandardCharsets.UTF_8);
+            writer.write("测试文件写操作");
+            writer.flush();
+            writer.close();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+```
+
+7）遍历一个文件夹：
+
+```java
+Path dir = Paths.get("D:\\webworkspace");
+        try(DirectoryStream<Path> stream = Files.newDirectoryStream(dir)){
+            for(Path e : stream){
+                System.out.println(e.getFileName());
+            }
+        }catch(IOException e){
+            
+        }
+try (Stream<Path> stream = Files.list(Paths.get("C:/"))){
+            Iterator<Path> ite = stream.iterator();
+            while(ite.hasNext()){
+                Path pp = ite.next();
+                System.out.println(pp.getFileName());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+```
+
+上面是遍历单个目录，它不会遍历整个目录。遍历整个目录需要使用：Files.walkFileTree
+
+8）遍历整个文件目录：
+
+```java
+public static void main(String[] args) throws IOException{
+        Path startingDir = Paths.get("C:\\apache-tomcat-8.0.21");
+        List<Path> result = new LinkedList<Path>();
+        Files.walkFileTree(startingDir, new FindJavaVisitor(result));
+        System.out.println("result.size()=" + result.size());        
+    }
+    
+    private static class FindJavaVisitor extends SimpleFileVisitor<Path>{
+        private List<Path> result;
+        public FindJavaVisitor(List<Path> result){
+            this.result = result;
+        }
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs){
+            if(file.toString().endsWith(".java")){
+                result.add(file.getFileName());
+            }
+            return FileVisitResult.CONTINUE;
+        }
+    }
+```
+
+来一个实际例子：
+
+```java
+public static void main(String[] args) throws IOException {
+        Path startingDir = Paths.get("F:\\upload\\images");    // F:\\upload\\images\\2\\20141206
+        List<Path> result = new LinkedList<Path>();
+        Files.walkFileTree(startingDir, new FindJavaVisitor(result));
+        System.out.println("result.size()=" + result.size()); 
+        
+        System.out.println("done.");
+    }
+    
+    private static class FindJavaVisitor extends SimpleFileVisitor<Path>{
+        private List<Path> result;
+        public FindJavaVisitor(List<Path> result){
+            this.result = result;
+        }
+        
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs){
+            String filePath = file.toFile().getAbsolutePath();       
+            if(filePath.matches(".*_[1|2]{1}\\.(?i)(jpg|jpeg|gif|bmp|png)")){
+                try {
+                    Files.deleteIfExists(file);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+              result.add(file.getFileName());
+            } return FileVisitResult.CONTINUE;
+        }
+    }
+```
+
+将目录下面所有符合条件的图片删除掉：filePath.matches(".*_[1|2]{1}\.(?i)(jpg|jpeg|gif|bmp|png)")
+
+```java
+public static void main(String[] args) throws IOException {
+        Path startingDir = Paths.get("F:\\111111\\upload\\images");    // F:\111111\\upload\\images\\2\\20141206
+        List<Path> result = new LinkedList<Path>();
+        Files.walkFileTree(startingDir, new FindJavaVisitor(result));
+        System.out.println("result.size()=" + result.size()); 
+        
+        System.out.println("done.");
+    }
+    
+    private static class FindJavaVisitor extends SimpleFileVisitor<Path>{
+        private List<Path> result;
+        public FindJavaVisitor(List<Path> result){
+            this.result = result;
+        }
+        
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs){
+            String filePath = file.toFile().getAbsolutePath();
+            int width = 224;
+            int height = 300;
+            StringUtils.substringBeforeLast(filePath, ".");
+            String newPath = StringUtils.substringBeforeLast(filePath, ".") + "_1." 
+                                            + StringUtils.substringAfterLast(filePath, ".");
+            try {
+                ImageUtil.zoomImage(filePath, newPath, width, height);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return FileVisitResult.CONTINUE;
+            }
+            result.add(file.getFileName());
+            return FileVisitResult.CONTINUE;
+        }
+    }
+```
+
+为目录下的所有图片生成指定大小的缩略图。a.jpg 则生成 a_1.jpg
+
+**2. 强大的java.nio.file.Files**
+
+1）创建目录和文件：
+
+```java
+try {
+            Files.createDirectories(Paths.get("C://TEST"));
+            if(!Files.exists(Paths.get("C://TEST")))
+                    Files.createFile(Paths.get("C://TEST/test.txt"));
+//            Files.createDirectories(Paths.get("C://TEST/test2.txt"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+```
+
+注意创建目录和文件Files.createDirectories 和 Files.createFile不能混用，必须先有目录，才能在目录中创建文件。
+
+2）文件复制:
+
+从文件复制到文件：Files.copy(Path source, Path target, CopyOption options);
+
+从输入流复制到文件：Files.copy(InputStream in, Path target, CopyOption options);
+
+从文件复制到输出流：Files.copy(Path source, OutputStream out);
+
+```java
+try {
+            Files.createDirectories(Paths.get("C://TEST"));
+            if(!Files.exists(Paths.get("C://TEST")))
+                    Files.createFile(Paths.get("C://TEST/test.txt"));
+//          Files.createDirectories(Paths.get("C://TEST/test2.txt"));
+            Files.copy(Paths.get("C://my.ini"), System.out);
+            Files.copy(Paths.get("C://my.ini"), Paths.get("C://my2.ini"), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(System.in, Paths.get("C://my3.ini"), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+```
+
+3）遍历一个目录和文件夹上面已经介绍了：Files.newDirectoryStream ， Files.walkFileTree
+
+4）读取文件属性：
+
+```java
+Path zip = Paths.get(uri);
+System.out.println(Files.getLastModifiedTime(zip));
+System.out.println(Files.size(zip));
+System.out.println(Files.isSymbolicLink(zip));
+System.out.println(Files.isDirectory(zip));
+System.out.println(Files.readAttributes(zip, "*"));
+```
+
+5）读取和设置文件权限：
+
+```java
+Path profile = Paths.get("/home/digdeep/.profile");
+            PosixFileAttributes attrs = Files.readAttributes(profile, PosixFileAttributes.class);// 读取文件的权限
+            Set<PosixFilePermission> posixPermissions = attrs.permissions();
+            posixPermissions.clear();
+            String owner = attrs.owner().getName();
+            String perms = PosixFilePermissions.toString(posixPermissions);
+            System.out.format("%s %s%n", owner, perms);
+            
+            posixPermissions.add(PosixFilePermission.OWNER_READ);
+            posixPermissions.add(PosixFilePermission.GROUP_READ);
+            posixPermissions.add(PosixFilePermission.OTHERS_READ);
+            posixPermissions.add(PosixFilePermission.OWNER_WRITE);
+            
+            Files.setPosixFilePermissions(profile, posixPermissions);    // 设置文件的权限
+```
+
+Files类简直强大的一塌糊涂，几乎所有文件和目录的相关属性，操作都有想要的api来支持。这里懒得再继续介绍了，详细参见 jdk8 的文档。
+
+一个实际例子：
+
+```java
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+public class StringTools {
+    public static void main(String[] args) {
+        try {
+            BufferedReader reader = Files.newBufferedReader(Paths.get("C:\\Members.sql"), StandardCharsets.UTF_8);
+            BufferedWriter writer = Files.newBufferedWriter(Paths.get("C:\\Members3.txt"), StandardCharsets.UTF_8);
+
+            String str = null;
+            while ((str = reader.readLine()) != null) {
+                if (str != null && str.indexOf(", CAST(0x") != -1 && str.indexOf("AS DateTime)") != -1) {
+                    String newStr = str.substring(0, str.indexOf(", CAST(0x")) + ")";
+                    writer.write(newStr);
+                    writer.newLine();
+                }
+            }
+            writer.flush();
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+场景是，sql server导出数据时，会将 datatime 导成16进制的binary格式，形如：, CAST(0x0000A2A500FC2E4F AS DateTime))
+
+所以上面的程序是将最后一个 datatime 字段导出的 , CAST(0x0000A2A500FC2E4F AS DateTime) 删除掉，生成新的不含有datetime字段值的sql 脚本。用来导入到mysql中。
+
+做到半途，其实有更好的方法，使用sql yog可以很灵活的将sql server中的表以及数据导入到mysql中。使用sql server自带的导出数据的功能，反而不好处理。
