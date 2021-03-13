@@ -64,6 +64,16 @@ BindKey(绑定键)：用于把交换器的消息绑定到队列上
 
 ## 138.rabbitmq 中 vhost 的作用是什么？
 
+vhost本质上是一个mini版的RabbitMQ服务器，拥有自己的队列、绑定、交换器和权限控制；
+
+vhost通过在各个实例间提供逻辑上分离，允许你为不同应用程序安全保密地运行数据；
+
+vhost是AMQP概念的基础，必须在连接时进行指定，RabbitMQ包含了默认vhost：“/”；
+
+当在RabbitMQ中创建一个用户时，用户通常会被指派给至少一个vhost，并且只能访问被指派vhost内的队列、交换器和绑定，vhost之间是绝对隔离的。
+
+**vhost可以理解为虚拟broker，即mini-RabbitMQ server，其内部均含有独立的queue、bind、exchange等，最重要的是拥有独立的权限系统，可以做到vhost范围内的用户控制。当然，从RabbitMQ全局角度，vhost可以作为不同权限隔离的手段(一个典型的例子，不同的应用可以跑在不同的vhost中)。**
+
 ## 139.rabbitmq 的消息是怎么发送的？
 
 ## 140.rabbitmq 怎么保证消息的稳定性？
