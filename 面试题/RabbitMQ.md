@@ -76,6 +76,8 @@ vhost是AMQP概念的基础，必须在连接时进行指定，RabbitMQ包含了
 
 ## 139.rabbitmq 的消息是怎么发送的？
 
+
+
 ## 140.rabbitmq 怎么保证消息的稳定性？
 
 ## 141.rabbitmq 怎么避免消息丢失？
