@@ -291,7 +291,7 @@ RabbitMQ分布式部署有3种方式：集群、Federation和Shovel。这三种�
 - binding元数据：exchange和queue之间、exchange和exchange之间的绑定关系
 - vhost元数据：vhost内部的命名空间、安全属性数据等
 
-![rabbitmq.jpg](E:\.学习\learning-notes\面试题\221608646563655061223.jpg)
+![rabbitmq.jpg](https://gitee.com/kongyin/picture_bed/raw/master/wx_picture/221608646563655061223.jpg)
 
 
 
