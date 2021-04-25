@@ -126,29 +126,29 @@ git clone xxxx.git
 
 一开始的时候，`master`分支是一条线，Git用`master`指向最新的提交，再用`HEAD`指向`master`，就能确定当前分支，以及当前分支的提交点：
 
-![git-br-initial](https://www.liaoxuefeng.com/files/attachments/919022325462368/0)
+![git-br-initial](https://gitee.com/kongyin/picture_bed/raw/master/wx_picture/0)
 
 每次提交，`master`分支都会向前移动一步，这样，随着你不断提交，`master`分支的线也越来越长。
 
 当我们创建新的分支，例如`dev`时，Git新建了一个指针叫`dev`，指向`master`相同的提交，再把`HEAD`指向`dev`，就表示当前分支在`dev`上：
 
-![git-br-create](https://www.liaoxuefeng.com/files/attachments/919022363210080/l)
+![git-br-create](https://gitee.com/kongyin/picture_bed/raw/master/wx_picture/l)
 
 你看，Git创建一个分支很快，因为除了增加一个`dev`指针，改改`HEAD`的指向，工作区的文件都没有任何变化！
 
 不过，从现在开始，对工作区的修改和提交就是针对`dev`分支了，比如新提交一次后，`dev`指针往前移动一步，而`master`指针不变：
 
-![git-br-dev-fd](https://www.liaoxuefeng.com/files/attachments/919022387118368/l)
+![git-br-dev-fd](https://gitee.com/kongyin/picture_bed/raw/master/wx_picture/202104250837.png)
 
 假如我们在`dev`上的工作完成了，就可以把`dev`合并到`master`上。Git怎么合并呢？最简单的方法，就是直接把`master`指向`dev`的当前提交，就完成了合并：
 
-![git-br-ff-merge](https://www.liaoxuefeng.com/files/attachments/919022412005504/0)
+![git-br-ff-merge](https://gitee.com/kongyin/picture_bed/raw/master/wx_picture/2021042508371.png)
 
 所以Git合并分支也很快！就改改指针，工作区内容也不变！
 
 合并完分支后，甚至可以删除`dev`分支。删除`dev`分支就是把`dev`指针给删掉，删掉后，我们就剩下了一条`master`分支：
 
-![git-br-rm](https://www.liaoxuefeng.com/files/attachments/919022479428512/0)
+![git-br-rm](https://gitee.com/kongyin/picture_bed/raw/master/wx_picture/2021042508372.png)
 
 - 创建分支
 
@@ -161,5 +161,133 @@ git checkout -b dev
 ```sh
 git branch dev
 git checkout dev
+```
+
+- 查看分支
+
+```sh
+git branch
+```
+
+> `git branch`命令会列出所有分支，当前分支前面会标一个`*`号
+
+- 合并分支
+
+```sh
+git merge dev
+```
+
+- 删除分支
+
+```sh
+git branch -d dev
+```
+
+- 创建并切换分支
+
+```sh
+git switch -c dev
+#切换已有的分支
+git switch master
+```
+
+- 查看分支合并记录
+
+```sh
+git log --graph --pretty=oneline --abbrev-commit
+```
+
+- Fast forward切换分支
+
+```sh
+git merge --no-ff -m "xxx" dev
+```
+
+> 合并分支时，加上`--no-ff`参数就可以用普通模式合并，合并后的历史有分支，能看出来曾经做过合并，而`fast forward`合并就看不出来曾经做过合并
+
+- 暂存stash功能
+
+```sh
+##暂存
+git stash
+##查看 工作
+git stash list
+##恢复工作
+git stash apply
+## 删除工作
+git stash drop
+##恢复并删除
+git stash pop
+```
+
+- 复制一个特定的提交到当前分支
+
+```sh
+git cherry-pick 4c805e2
+```
+
+- 强制删除
+
+```sh
+git branch -D xxx
+```
+
+- 查看远程仓库的信息
+
+```sh
+#查看远程仓库信息
+git remote 
+#查看详情
+git remote -v
+```
+
+- 推送分支
+
+```sh
+git push origin master
+## 推送 dev
+git push origin dev
+```
+
+- 抓取分支
+
+```sh
+git clone git@xxx.git
+#默认master 查看
+git branch 
+#切换至 dev
+git checkout -b origin/dev
+##添加工作区
+git add xxx
+#提交缓存
+git commit -m "add xxx"
+# 推送
+git pull origin dev
+```
+
+冲突时
+
+```sh
+$ git pull
+There is no tracking information for the current branch.
+Please specify which branch you want to merge with.
+See git-pull(1) for details.
+
+    git pull <remote> <branch>
+
+If you wish to set tracking information for this branch you can do so with:
+
+    git branch --set-upstream-to=origin/<branch> dev
+```
+
+根据提示建立链接
+
+```sh
+git branch --set-upstream-to=origin/dev dev
+## 即可拉去
+git pull
+# 解决冲突后提交并推送
+git commit -m "xxx"
+git push origin dev
 ```
 
