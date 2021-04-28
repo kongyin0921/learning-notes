@@ -291,3 +291,77 @@ git commit -m "xxx"
 git push origin dev
 ```
 
+- Rebase
+
+```sh
+#变基
+git rebase
+```
+
+> rebase操作可以把本地未push的分叉提交历史整理成直线
+>
+> rebase的目的是使得我们在查看历史提交的变化时更容易，因为分叉的提交需要三方对比
+
+## 标签
+
+- 打标签
+
+```sh
+# 查看分支
+git branch
+# 切换分支
+git checkout master
+# 打标签
+git tag v1.0
+# 查看所有标签
+git tag
+```
+
+- 指定提交打标签
+
+```sh
+# 查看提交信息
+git log --pretty=online --abbrev-commit
+# 根据提交 id 打标签
+git tag v0.9 xxxx
+# 查看
+git tag
+```
+
+-  查看标签信息
+
+```sh
+git show v0.9
+```
+
+- 创建带有说明的标签
+
+```sh
+git tag -a v0.1 - m "xxx" xxx
+```
+
+> 创建带有说明的标签，用`-a`指定标签名，`-m`指定说明文字
+
+- 删除本地标签
+
+```sh
+git tag -d v0.1
+```
+
+- 推送标签
+
+```sh
+git push oirgin v1.0
+# 推送全部 未推送本地标签
+git push origin --tags
+```
+
+- 删除远端标签
+
+```sh
+# 先删除本地
+git tag -d v0.1
+# 删除远端
+git push origin :refs/tags/v0.1
+```
+
