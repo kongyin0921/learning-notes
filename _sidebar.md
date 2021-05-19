@@ -2,28 +2,9 @@
 
 
 - **Java**
-  
-  - Java集合
-  
-    - [Collection类关系图](./Java/1.Java集合/Collection类关系图.md)
-    - [Collection-ArrayList源码解析](./Java/1.Java集合/Collection-ArrayList源码解析.md)
-    - [Collection-LinkedList源码解析](./Java/1.Java集合/Collection-LinkedList源码解析.md)
-    - [Collection-Stack&Queue源码解析](./Java/1.Java集合/Collection-Stack&Queue源码解析.md)
-  - Java多线程与并发
-  
-    - [Java并发知识体系详解](./Java/2.Java多线程与并发/Java并发知识体系详解.md)
-  - [Java注解和反射](./Java/Java注解和反射/README.md)
-  - [泛型的类型擦除](./Java/泛型的类型擦除/README.md)
-  - [Java使用Redis删除指定前缀Key](./Java/Java使用Redis删除指定前缀Key/README.md)
-  - [前端的一些跨域问题](./Java/前端的一些跨域问题/README.md)
-  - [使用Ip2region替代淘宝IP接口](./Java/使用Ip2region替代淘宝IP接口/README.md)
-  - [JVM类加载机制](./Java/JVM类加载机制/README.md)
-  - [VisualVM安装VisualGC插件](./Java/VisualVM安装VisualGC插件/README.md)
-  - [谈谈你对ThreadLocal的理解](./Java/谈谈你对ThreadLocal的理解/README.md)
-  - [谈谈你对AQS的理解](./Java/谈谈你对AQS的理解/README.md)
-  - [ArrayList扩容机制](./Java/ArrayList扩容机制/README.md)
-- **SpringBoot**
 
+  - [1.JAVA基础知识](./Java/1.JAVA基础知识.md)
+- **SpringBoot**
   - [01.Spring与SpringBoot](./SpringBoot/01.Spring与SpringBoot.md)
   - [02.SpringBoot2入门](./SpringBoot/02.SpringBoot2入门.md)
   - [03.了解自动配置原理](./SpringBoot/03.了解自动配置原理.md)
@@ -44,6 +25,16 @@
   - [搭建个人公众号](./随笔记/搭建个人公众号.md)
   - [Linux之5个常用的命令](./随笔记/Linux之5个常用的命令.md)
   - [Elastic-Job分布式定时任务框架](./随笔记/Elastic-Job分布式定时任务框架.md)
+  - [CentOS7安装Nginx](./随笔记/CentOS7安装Nginx.md)
+  - [Erupt实现全栈](./随笔记/Erupt实现全栈.md)
+  - [Git命令](./随笔记/Git命令.md)
+  - [Gradle的使用教程](./随笔记/Gradle的使用教程.md)
+  - [JAVA支付](./随笔记/JAVA支付.md)
+  - [maven 高级玩法](./随笔记/maven 高级玩法.md)
+  - [搭建个人博客](./随笔记/搭建个人博客.md)
+  - [多线程Future类](./随笔记/多线程Future类.md)
+  - [轻量级权限认证框架(sa-token)](./随笔记/轻量级权限认证框架(sa-token).md)
+  - [Java之CountDownLatch使用](./随笔记/Java之CountDownLatch使用.md)
 - **面试题**
   - [java基础](./面试题/java基础.md)
   - [容器](./面试题/容器.md)
